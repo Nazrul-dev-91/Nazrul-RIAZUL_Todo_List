@@ -14,7 +14,7 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'), 
     
     # Board CRUD Operations
-    path('board/', board_detail, name='board_detail'),
+    path('board/<int:board_id>', board_detail, name='board_detail'),
     path('board/<int:board_id>/update/', board_update, name='board_update'), 
     path('board/<int:board_id>/delete/', board_delete, name='board_delete'), 
     
