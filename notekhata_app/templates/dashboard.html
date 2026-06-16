@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+  <div class="row">
+    <div class="col-lg-8">
+      <h3 class="fw-bold text-light mb-3">My Boards</h3>
+      <div class="row g-3">
+        {% for board in boards %}
+          <div class="col-md-6">
+            <div class="card border border-secondary-subtle bg-body-tertiary p-3">
+              <h5 class="text-light fw-bold mb-3">{{ board.title }}</h5>
+              <div class="d-flex justify-content-between align-items-center mt-auto">
+                <a href="{% url 'board_detail' board.id %}" class="btn btn-info btn-sm text-dark fw-bold px-3">Open Board</a>
+                <div class="btn-group">
+                  <a href="{% url 'board_update' board.id %}" class="btn btn-sm btn-outline-secondary text-light"><i class="fa-solid fa-pencil"></i></a>
+                  <a href="{% url 'board_delete' board.id %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-muted py-4">No boards found. Create one on the right side!</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border border-secondary-subtle bg-body-tertiary p-4">
+        <h5 class="fw-bold text-info mb-3"><i class="fa-solid fa-plus"></i> New Board</h5>
+        <form method="post" action="{% url 'dashboard' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ form.title }}
+          </div>
+          <button type="submit" class="btn btn-info text-dark fw-bold w-100">Initialize Board</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

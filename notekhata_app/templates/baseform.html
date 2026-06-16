@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ action|default:"Form" }} Note-Khata{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card bg-body-tertiary border border-secondary-subtle shadow p-4">
+        <h4 class="text-center text-info fw-bold mb-4">{{ action|default:"Submit Form" }}</h4>
+        
+        <form method="post" novalidate action="">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label small text-muted text-uppercase">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-info w-100 text-dark fw-bold mt-2">Confirm {{ action }}</button>
+        </form>
+
+        <div class="text-center mt-3 small">
+          {% if action == 'Login' %}
+            Need an account? <a href="{% url 'register' %}" class="text-info">Register</a>
+          {% elif action == 'Register' %}
+            Have an account? <a href="{% url 'login' %}" class="text-info">Login</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
