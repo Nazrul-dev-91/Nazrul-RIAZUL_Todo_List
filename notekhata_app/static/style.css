@@ -1,5 +1,40 @@
-.navbar {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+.custom-navbar {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    padding: 12px 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.nav-link-custom {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.nav-link-custom:hover {
+    color: #fbbf24;
+}
+
+.register-btn {
+    background: white;
+    color: #6366f1;
+    border: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.register-btn:hover {
+    transform: translateY(-2px);
+    background: #f8f9fa;
+    color: #4f46e5;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
 }
 
 /* Login/Register Card */
