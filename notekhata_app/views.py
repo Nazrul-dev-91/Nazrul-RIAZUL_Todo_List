@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login, logout as auth_logout 
 from django.contrib import messages
+from django.urls import reverse
 from .models import Board, List, Task
 from .forms import RegisterForm, BoardForm, ListForm, TaskForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -19,7 +20,15 @@ def register(request):
             return redirect('login')
     else:
         form = RegisterForm()
-    return render(request, 'baseform.html', {'form': form, 'action': 'Register'})
+    
+    context = {
+        'form': form,
+        'title': 'User Registration',
+        'action_button_text': 'Register Dashboard',
+        'cancel_url': reverse('home'),
+        'auth_flow': 'register',
+    }
+    return render(request, 'baseform.html', context)
 
 def login_view(request): 
     if request.method == 'POST':
@@ -31,7 +40,15 @@ def login_view(request):
             return redirect('dashboard')
     else:
         form = AuthenticationForm()
-    return render(request, 'baseform.html', {'form': form, 'action': 'Login'})
+        
+    context = {
+        'form': form,
+        'title': 'Secure Account Login',
+        'action_button_text': 'Sign In',
+        'cancel_url': reverse('home'),
+        'auth_flow': 'login',
+    }
+    return render(request, 'baseform.html', context)
 
 def logout_view(request): 
     auth_logout(request)
@@ -73,7 +90,14 @@ def board_update(request, board_id):
             return redirect('board_detail', board_id=board.id)
     else:
         form = BoardForm(instance=board)
-    return render(request, 'board_form.html', {'form': form, 'board': board, 'action': 'Update'})
+        
+    context = {
+        'form': form,
+        'title': 'Edit Board Title',
+        'action_button_text': 'Save Changes',
+        'cancel_url': reverse('board_detail', args=[board.id]),
+    }
+    return render(request, 'baseform.html', context)
 
 
 @login_required
@@ -84,7 +108,14 @@ def board_delete(request, board_id):
         board.delete()
         messages.success(request, f"Board '{title}' was deleted successfully.")
         return redirect('dashboard')
-    return render(request, 'board_confirm_delete.html', {'board': board})
+        
+    context = {
+        'title': 'Delete Board?',
+        'warning_message': f'Are you sure you want to delete the board <strong>"{board.title}"</strong>?<br>This action will permanently remove the board and all lists/tasks associated with it.',
+        'delete_btn_text': 'Yes, Delete Board',
+        'cancel_url': reverse('dashboard'),
+    }
+    return render(request, 'baseformdelete.html', context)
 
 
 @login_required
@@ -101,7 +132,14 @@ def list_create(request, board_id):
             return redirect('board_detail', board_id=board.id)
     else:
         form = ListForm()
-    return render(request, 'list_form.html', {'form': form, 'board': board})
+        
+    context = {
+        'form': form,
+        'title': 'Create New List Column',
+        'action_button_text': 'Add List',
+        'cancel_url': reverse('board_detail', args=[board.id]),
+    }
+    return render(request, 'baseform.html', context)
 
 
 @login_required
@@ -115,7 +153,14 @@ def list_update(request, list_id):
             return redirect('board_detail', board_id=list_obj.board.id) 
     else:
         form = ListForm(instance=list_obj)
-    return render(request, 'list_form.html', {'form': form, 'board': list_obj.board, 'list': list_obj, 'action': 'Update'}) 
+        
+    context = {
+        'form': form,
+        'title': 'Rename List Column',
+        'action_button_text': 'Apply Changes',
+        'cancel_url': reverse('board_detail', args=[list_obj.board.id]),
+    }
+    return render(request, 'baseform.html', context) 
 
 
 @login_required
@@ -126,7 +171,14 @@ def list_delete(request, list_id):
         list_obj.delete()
         messages.success(request, "List column deleted.")
         return redirect('board_detail', board_id=board_id)
-    return render(request, 'list_confirm_delete.html', {'list': list_obj}) 
+        
+    context = {
+        'title': 'Remove List Column?',
+        'warning_message': f'Are you sure you want to delete the list column <strong>"{list_obj.title}"</strong>?<br>This will also permanently delete all task cards inside it.',
+        'delete_btn_text': 'Delete List',
+        'cancel_url': reverse('board_detail', args=[board_id]),
+    }
+    return render(request, 'baseformdelete.html', context) 
 
 
 @login_required
@@ -143,7 +195,14 @@ def task_create(request, list_id):
             return redirect('board_detail', board_id=list_obj.board.id)
     else:
         form = TaskForm()
-    return render(request, 'task_form.html', {'form': form, 'list': list_obj})
+        
+    context = {
+        'form': form,
+        'title': 'Create Task Card',
+        'action_button_text': 'Create Task',
+        'cancel_url': reverse('board_detail', args=[list_obj.board.id]),
+    }
+    return render(request, 'baseform.html', context)
 
 
 @login_required
@@ -157,7 +216,14 @@ def task_update(request, task_id):
             return redirect('board_detail', board_id=task.list.board.id)
     else:
         form = TaskForm(instance=task)
-    return render(request, 'task_form.html', {'form': form, 'task': task, 'action': 'Update'})
+        
+    context = {
+        'form': form,
+        'title': 'Edit Task Details',
+        'action_button_text': 'Update Task',
+        'cancel_url': reverse('board_detail', args=[task.list.board.id]),
+    }
+    return render(request, 'baseform.html', context)
 
 
 @login_required
@@ -168,4 +234,11 @@ def task_delete(request, task_id):
         task.delete()
         messages.success(request, "Task card removed.")
         return redirect('board_detail', board_id=board_id)
-    return render(request, 'task_confirm_delete.html', {'task': task})
+        
+    context = {
+        'title': 'Remove Task Card?',
+        'warning_message': f'Are you sure you want to delete the task card <strong>"{task.title}"</strong>?<br>Your changes will be lost permanently.',
+        'delete_btn_text': 'Remove Card',
+        'cancel_url': reverse('board_detail', args=[board_id]),
+    }
+    return render(request, 'baseformdelete.html', context)
