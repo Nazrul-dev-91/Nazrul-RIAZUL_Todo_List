@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="card bg-body-tertiary p-5 border-danger">
+        <h4 class="text-danger">Delete List?</h4>
+        <p class="text-light">Are you sure you want to delete "{{ list.title }}"? This will also remove all tasks inside it.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+            <a href="{% url 'board_detail' list.board.id %}" class="btn btn-secondary px-4">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

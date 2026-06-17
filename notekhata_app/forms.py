@@ -7,7 +7,14 @@ class RegisterForm(UserCreationForm):
         model = CustomUser
         fields = ['username', 'display_name', 'email'] 
 class LoginForm(AuthenticationForm):
-    pass
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'password']
+    widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
 
 class BoardForm(forms.ModelForm):
     class Meta:

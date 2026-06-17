@@ -1,36 +1,48 @@
 {% extends "base.html" %}
-{% block title %}{{ action|default:"Form" }} Note-Khata{% endblock %}
+{% load widget_tweaks %}
+
+{% block title %}{{ action|default:"Form" }} - Notekhata{% endblock %}
 
 {% block content %}
+<div class="login-page-bg">
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-5">
       <div class="login-card">
-        <h4 class="text-center text-info fw-bold mb-4">{{ action|default:"Submit Form" }}</h4>
+        <h4 class="text-center text-info fw-bold mb-4">{{ action|default:"Submit" }}</h4>
         
-        <form method="post" novalidate action="">
+        <form method="post" novalidate>
           {% csrf_token %}
+          
           {% for field in form %}
             <div class="mb-3">
               <label class="form-label small text-muted text-uppercase">{{ field.label }}</label>
-              {{ field }}
-              {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+              
+              {{ field|add_class:"form-control"|add_error_class:"is-invalid" }}
+              
+              {% if field.errors %}
+                <div class="text-danger small mt-1">
+                  {{ field.errors|striptags }}
+                </div>
+              {% endif %}
             </div>
           {% endfor %}
+          
           <button type="submit" class="btn login-btn w-100 mt-3">
-    {{ action }}
-</button>
+            {{ action|default:"Submit" }}
+          </button>
         </form>
 
         <div class="text-center mt-3 small">
           {% if action == 'Login' %}
-            Need an account? <a href="{% url 'register' %}" class="text-info">Register</a>
+            Need an account? <a href="{% url 'register' %}" class="text-info text-decoration-none">Register</a>
           {% elif action == 'Register' %}
-            Have an account? <a href="{% url 'login' %}" class="text-info">Login</a>
+            Have an account? <a href="{% url 'login' %}" class="text-info text-decoration-none">Login</a>
           {% endif %}
         </div>
       </div>
     </div>
   </div>
+</div>
 </div>
 {% endblock %}
