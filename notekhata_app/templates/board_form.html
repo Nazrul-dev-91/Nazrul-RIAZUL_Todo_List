@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}{{ action|default:"Update" }} Board{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="login-card bg-body-tertiary p-4 border border-secondary-subtle">
+                <h4 class="text-info fw-bold mb-4">{{ action|default:"Update" }} Board</h4>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small text-muted text-uppercase">Board Title</label>
+                        {{ form.title|add_class:"form-control bg-dark text-white border-secondary" }}
+                        {% if form.title.errors %}
+                            <div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info w-100 fw-bold text-dark">
+                        {{ action|default:"Save Changes" }}
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
