@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login, logout as auth_logout 
 from django.contrib import messages
 from django.urls import reverse
+from django.utils import timezone
 from .models import Board, List, Task
 from .forms import RegisterForm, BoardForm, ListForm, TaskForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -75,9 +76,14 @@ def dashboard(request):
 @login_required
 def board_detail(request, board_id):
     board = get_object_or_404(Board, id=board_id, user=request.user)
-    lists = board.lists.all().prefetch_related('tasks')
-    return render(request, 'board_detail.html', {'board': board, 'lists': lists})
-
+    lists = board.lists.prefetch_related('tasks').all()
+    all_tasks = Task.objects.filter(list__board=board)
+    
+    return render(request, 'board_detail.html', {
+        'board': board,
+        'lists': lists,
+        'all_tasks': all_tasks
+    })
 
 @login_required
 def board_update(request, board_id):
@@ -242,3 +248,11 @@ def task_delete(request, task_id):
         'cancel_url': reverse('board_detail', args=[board_id]),
     }
     return render(request, 'baseformdelete.html', context)
+
+@login_required
+def task_complete(request, task_id):
+    task = get_object_or_404(Task, id=task_id, list__board__user=request.user)
+    task.is_completed = True
+    task.save()
+    messages.success(request, f"Task '{task.title}' marked as completed.")
+    return redirect('board_detail', board_id=task.list.board.id)

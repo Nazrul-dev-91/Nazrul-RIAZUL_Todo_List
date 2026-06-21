@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block content %}
-<div class="container-fluid py-4" style="height: calc(100vh - 100px);">
+<div class="container-fluid py-4">
   
   <div class="d-flex justify-content-between align-items-center mb-4 px-2">
     <h3 class="text-light fw-bold"><i class="fa-solid fa-folder-open text-muted me-2"></i>{{ board.title }}</h3>
@@ -9,48 +9,84 @@
       <a href="{% url 'list_create' board.id %}" class="btn btn-info btn-sm text-dark fw-bold"><i class="fa-solid fa-plus"></i> New List</a>
     </div>
   </div>
-
-  <div class="d-flex flex-row overflow-auto gap-3 pb-3 h-100 align-items-start" style="white-space: nowrap;">
+  
+  <div class="d-flex flex-row overflow-auto gap-3 pb-3 align-items-start" style="white-space: nowrap;">
     {% for list in lists %}
-      <div class="card border border-secondary-subtle bg-body-tertiary p-2" style="width: 270px; flex-shrink: 0; white-space: normal;">
-        
-        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
-          <h6 class="fw-bold text-info mb-0">{{ list.title }}</h6>
-          <div>
-            <a href="{% url 'list_update' list.id %}" class="text-muted me-2"><i class="fa-solid fa-pen small"></i></a>
-            <a href="{% url 'list_delete' list.id %}" class="text-danger"><i class="fa-solid fa-trash small"></i></a>
+    <div class="card border border-secondary-subtle bg-body-tertiary p-2" style="width: 270px; flex-shrink: 0; white-space: normal;">
+      <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+        <h6 class="fw-bold text-info mb-0">{{ list.title }}</h6>
+        <div>
+          <a href="{% url 'list_update' list.id %}" class="text-muted me-2"><i class="fa-solid fa-pen small"></i></a>
+          <a href="{% url 'list_delete' list.id %}" class="text-danger"><i class="fa-solid fa-trash small"></i></a>
+        </div>
+      </div>
+      
+      <div class="d-flex flex-column gap-2 overflow-auto mb-2" style="max-height: 60vh;">
+        {% for task in list.tasks.all %}
+        <div class="card p-3 border-secondary shadow-sm" style="background-color: #212534;">
+          <h6 class="text-light fw-semibold mb-1">{{ task.title }}</h6>
+          {% if task.description %}<p class="text-muted small mb-2 text-truncate">{{ task.description }}</p>{% endif %}
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary mt-1">
+            <span class="badge small {% if task.priority == 'HIGH' %}bg-danger-subtle text-danger{% else %}bg-secondary-subtle text-light{% endif %}">
+              {{ task.priority }}
+            </span>
+            <div>
+              <a href="{% url 'task_update' task.id %}" class="text-warning me-2 small"><i class="fa-solid fa-pencil"></i></a>
+              <a href="{% url 'task_delete' task.id %}" class="text-danger small"><i class="fa-solid fa-trash"></i></a>
+            </div>
           </div>
         </div>
-
-        <div class="d-flex flex-column gap-2 overflow-auto mb-2" style="max-height: 60vh;">
-          {% for task in list.tasks.all %}
-            <div class="card p-3 border-secondary shadow-sm" style="background-color: #212534;">
-              <h6 class="text-light fw-semibold mb-1">{{ task.title }}</h6>
-              {% if task.description %}<p class="text-muted small mb-2 text-truncate">{{ task.description }}</p>{% endif %}
-              
-              <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary mt-1">
-                <span class="badge small {% if task.priority == 'HIGH' %}bg-danger-subtle text-danger{% else %}bg-secondary-subtle text-light{% endif %}">
-                  {{ task.priority }}
-                </span>
-                <div>
-                  <a href="{% url 'task_update' task.id %}" class="text-warning me-2 small"><i class="fa-solid fa-pencil"></i></a>
-                  <a href="{% url 'task_delete' task.id %}" class="text-danger small"><i class="fa-solid fa-trash"></i></a>
-                </div>
-              </div>
-            </div>
-          {% empty %}
-            <div class="text-center text-muted small my-2">Empty list</div>
-          {% endfor %}
-        </div>
-
-        <a href="{% url 'task_create' list.id %}" class="btn btn-sm btn-outline-secondary text-light w-100 border-secondary-subtle mt-1">
-          <i class="fa-solid fa-plus me-1 text-info"></i> Add Card
-        </a>
-
+        {% empty %}
+        <div class="text-center text-muted small my-2">Empty list</div>
+        {% endfor %}
       </div>
+      <a href="{% url 'task_create' list.id %}" class="btn btn-sm btn-outline-secondary text-light w-100 border-secondary-subtle mt-1">
+        <i class="fa-solid fa-plus me-1 text-info"></i> Add Card
+      </a>
+    </div>
     {% empty %}
-      <div class="text-muted p-5 text-center w-100">No lists yet. Create a column list above!</div>
+    <div class="text-muted p-5 text-center w-100">No lists yet. Create a column list above!</div>
     {% endfor %}
+  </div> <div class="container-fluid mt-5">
+    <h4 class="text-light fw-bold mb-3">Task Overview Table</h4>
+    <div class="table-responsive bg-dark rounded p-3">
+      <table class="table table-dark table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Task Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Deadline</th>
+						<th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in all_tasks %}
+          <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.get_priority_display }}</td>
+            <td>
+              {% if task.status == "Completed" %}
+              <span class="text-success">{{ task.status }}</span>
+              {% elif task.status == "Expired" %}
+              <span class="text-danger">{{ task.status }}</span>
+              {% else %}
+              <span class="text-warning">{{ task.status }}</span>
+              {% endif %}
+            </td>
+            <td>{{ task.due_date|default:"-" }}</td>
+						<td>
+                {% if not task.is_completed %}
+                    <a href="{% url 'task_complete' task.id %}" class="btn btn-sm btn-success me-2">Complete</a>
+                {% endif %}
+                <a href="{% url 'task_delete' task.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
+
 </div>
 {% endblock %}

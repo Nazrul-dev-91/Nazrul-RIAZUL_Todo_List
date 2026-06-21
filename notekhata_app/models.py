@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.utils import timezone
 class CustomUser(AbstractUser):
     display_name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(unique=True)
@@ -9,10 +9,7 @@ class CustomUser(AbstractUser):
         return self.username
 
 class Board(models.Model):
-    """
-    Represents a single Trello board.
-    Crucial: Strongly linked to a Django User to guarantee database-level isolation.
-    """
+    
     user = models.ForeignKey(
         CustomUser, 
         on_delete=models.CASCADE, 
@@ -33,9 +30,7 @@ class Board(models.Model):
 
 
 class List(models.Model):
-    """
-    Represents a column list inside a board (e.g., 'To Do', 'In Progress', 'Done').
-    """
+   
     board = models.ForeignKey(
         Board, 
         on_delete=models.CASCADE, 
@@ -59,9 +54,6 @@ class List(models.Model):
 
 
 class Task(models.Model):
-    """
-    Represents a specific Card or Task inside a list.
-    """
     PRIORITY_CHOICES = [
         ('LOW', 'Low'),
         ('MEDIUM', 'Medium'),
@@ -89,7 +81,7 @@ class Task(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    is_completed = models.BooleanField(default=False)
     class Meta:
         ordering = ['position', 'created_at']
         verbose_name = "Task"
@@ -97,8 +89,16 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def status(self):
+        if self.is_completed:
+            return "Completed"
+        elif self.due_date and self.due_date < timezone.now().date():
+            return "Expired"
+        else:
+            return "Pending"
 
-# models.py এর Board ক্লাসের ভেতর এটি যুক্ত করো:
 @property
 def total_tasks_count(self):
     return Task.objects.filter(list__board=self).count()
